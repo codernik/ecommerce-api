@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Commerce Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+    <h1 class="text-3xl font-bold text-center mb-6">E-Commerce Store</h1>
+    
+    <div id="products" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+    
+    <script>
+        async function fetchProducts() {
+            try {
+                const res = await fetch("/api/products");
+                const data = await res.json();
+                const container = document.getElementById("products");
+                
+                data.products.forEach((product) => {
+                    const card = document.createElement("div");
+                    card.className = "bg-white p-4 rounded shadow-md";
+                    
+                    card.innerHTML = `
+                        <h2 class="text-xl font-semibold">${product.name}</h2>
+                        <p class="text-gray-700">₹${product.price}</p>
+                        <button id="buy-btn-${product.id}"
+                            onclick="buyProduct(${product.id})"
+                            class="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            Buy
+                        </button>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                alert("Failed to load products.");
+                console.error(err);
+            }
+        }
+
+        async function buyProduct(id) {
+            const button = document.getElementById(`buy-btn-${id}`);
+            const originalText = button.innerText;
+            button.disabled = true;
+            button.innerText = "Processing...";
+
+            try {
+                const res = await fetch("/api/purchase", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id })
+                });
+
+                const result = await res.json();
+
+                if (!res.ok) {
+                    if (res.status === 429) {
+                        button.innerText = "Rate Limited";
+                        alert(result.error || "Too Many Requests");
+                    } else {
+                        alert(result.error || "Purchase failed.");
+                    }
+                } else {
+                    alert(result.message);
+                    button.innerText = "Purchased";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Network error. Please try again.");
+            } finally {
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.innerText = originalText;
+                }, 2000); // Enable again after 2 seconds
+            }
+        }
+
+        fetchProducts();
+    </script>
+</body>
+</html>
