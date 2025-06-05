@@ -27,7 +27,7 @@ This project implements a Redis-based rate limiting middleware for an Express.js
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/ecommerce-rate-limiter.git
+git clone https://github.com/codernik/ecommerce-api.git
 cd ecommerce-rate-limiter
 ```
 
