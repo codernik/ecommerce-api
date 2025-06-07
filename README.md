@@ -33,12 +33,6 @@ cd ecommerce-api
 
 ### Setup Environment
 
-Create a .env file:
-
-```
-cp .env.example .env
-```
-
 Run with Docker
 
 ```
